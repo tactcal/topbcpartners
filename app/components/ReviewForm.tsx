@@ -1,9 +1,16 @@
 'use client';
 import { useState } from 'react';
 import { supabase } from '@/app/utils/supabase';
-import { Star, Send } from 'lucide-react';
+import { Star, Send, X } from 'lucide-react';
 
-export default function ReviewForm({ partnerId }: { partnerId: string }) {
+// 1. We update the type definition to accept the new props
+interface ReviewFormProps {
+  partnerId: string;
+  partnerName?: string; // Optional (for the header)
+  onClose?: () => void; // Optional (for the modal behavior)
+}
+
+export default function ReviewForm({ partnerId, partnerName, onClose }: ReviewFormProps) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [name, setName] = useState('');
@@ -28,34 +35,59 @@ export default function ReviewForm({ partnerId }: { partnerId: string }) {
       reviewer_industry: industry,
       title,
       body,
-      status: 'pending' // Important: Sends to moderation queue
+      status: 'pending'
     });
 
     if (error) {
       alert('Error submitting review: ' + error.message);
+      setLoading(false);
     } else {
       setSubmitted(true);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
+  // 2. Success State (Now includes a Close button)
   if (submitted) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center">
+      <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center relative">
+        {onClose && (
+          <button onClick={onClose} className="absolute top-4 right-4 text-green-700 hover:text-green-900">
+            <X className="w-5 h-5" />
+          </button>
+        )}
         <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <Send className="w-6 h-6 text-green-600" />
         </div>
         <h3 className="text-xl font-bold text-green-800 mb-2">Review Submitted!</h3>
-        <p className="text-green-700">
-          Thanks, {name}! Your review is now pending approval by our moderation team.
+        <p className="text-green-700 mb-4">
+          Thanks, {name}! Your review is now pending approval.
         </p>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition"
+          >
+            Close
+          </button>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200 mt-12">
-      <h3 className="text-xl font-bold text-slate-900 mb-6">Write a Review</h3>
+    <div className="bg-white rounded-2xl p-6 md:p-8 relative">
+      {/* 3. Header with Close Button (if inside a modal) */}
+      <div className="flex justify-between items-start mb-6">
+        <h3 className="text-xl font-bold text-slate-900">
+          Write a Review {partnerName && `for ${partnerName}`}
+        </h3>
+        {onClose && (
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition">
+            <X className="w-6 h-6" />
+          </button>
+        )}
+      </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         
@@ -114,13 +146,24 @@ export default function ReviewForm({ partnerId }: { partnerId: string }) {
           required
         />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Submitting...' : 'Submit Review'}
-        </button>
+        <div className="flex gap-3 pt-2">
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-3 rounded-lg border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Submitting...' : 'Submit Review'}
+          </button>
+        </div>
       </form>
     </div>
   );
