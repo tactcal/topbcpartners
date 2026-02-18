@@ -5,8 +5,9 @@ import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/app/utils/supabase';
+import { Suspense } from 'react';
 import { CSPostHogProvider } from './providers';
-import PostHogPageView from './components/PostHogPageView';
+import PostHogPageView from '@/app/components/PostHogPageView';
 
 const inter = Inter({ subsets: ["latin"] });
 // 1. DYNAMIC SEO GENERATOR
