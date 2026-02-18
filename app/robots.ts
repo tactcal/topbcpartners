@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/admin/', // Keeps your admin portal private from Google
     },
-    //sitemap: 'https://topbcpartners.com/sitemap.xml',
+    //sitemap: 'https://topbcpartners.com/sitemap.xml',/
   };
 }
