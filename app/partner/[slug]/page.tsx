@@ -3,37 +3,32 @@ import { notFound } from 'next/navigation';
 import ReviewForm from '@/app/components/ReviewForm';
 import ClaimButton from '@/app/components/ClaimButton';
 
-// 1. Notice how we type 'params' as a Promise now
 export default async function PartnerPage({
   params,
 }: {
   params: Promise<{ slug: string }>; 
 }) {
   
-  // 2. UNLOCK the params by awaiting them
   const { slug } = await params;
 
-  // 3. Fetch the partner AND their reviews using the unlocked 'slug'
   const { data: partner } = await supabase
     .from('listings')
-    .select('*, reviews(*)') // This grabs the partner + all their reviews
+    .select('*, reviews(*)')
     .eq('slug', slug)
     .single();
 
-  // 4. If no partner found, show 404
   if (!partner) {
     notFound();
   }
 
-  // ... (Keep your return statement below here)
+  const approvedReviews = partner.reviews?.filter((r: any) => r.status === 'approved') || [];
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* 1. Header Section (Logo, Name, etc.) */}
+      {/* 1. Header Section */}
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-            {/* Logo Box */}
             <div className="w-32 h-32 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center p-4">
               {partner.logo_url ? (
                 <img src={partner.logo_url} alt={partner.name} className="w-full h-full object-contain" />
@@ -42,7 +37,6 @@ export default async function PartnerPage({
               )}
             </div>
             
-            {/* Title & Badges */}
             <div className="text-center md:text-left flex-1">
               <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
                 {partner.tier === 'Gold' && (
@@ -58,7 +52,6 @@ export default async function PartnerPage({
               <p className="text-slate-500 text-lg max-w-2xl">{partner.description}</p>
             </div>
 
-            {/* CTA Button */}
             <a 
               href={partner.website_url} 
               target="_blank" 
@@ -70,21 +63,21 @@ export default async function PartnerPage({
         </div>
       </header>
 
-      {/* 2. Main Content Grid */}
+      {/* 2. Main Grid */}
       <main className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        {/* LEFT COLUMN: Expertise & Reviews (2/3 width) */}
-        <div className="md:col-span-2 space-y-8">
+        {/* LEFT COLUMN */}
+        <div className="md:col-span-2 space-y-12">
           
           {/* Expertise Section */}
-          <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+          <section>
             <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               🛠️ Expertise & Focus
             </h3>
             {partner.services && partner.services.length > 0 ? (
               <div className="grid sm:grid-cols-2 gap-4">
                 {partner.services.map((service: string) => (
-                  <div key={service} className="flex items-center gap-3 text-slate-700">
+                  <div key={service} className="flex items-center gap-3 text-slate-700 bg-white p-3 rounded-lg border border-slate-100">
                     <div className="w-2 h-2 bg-blue-500 rounded-full" />
                     <span className="font-medium">{service}</span>
                   </div>
@@ -95,17 +88,14 @@ export default async function PartnerPage({
             )}
           </section>
 
-          {/* REVIEWS DISPLAY SECTION (New!) */}
+          {/* Reviews List */}
           <section>
             <h3 className="text-2xl font-bold text-slate-900 mb-6">
-              Client Reviews ({partner.reviews ? partner.reviews.filter((r: any) => r.status === 'approved').length : 0})
+              Client Reviews ({approvedReviews.length})
             </h3>
-
             <div className="space-y-4">
-              {partner.reviews && partner.reviews.filter((r: any) => r.status === 'approved').length > 0 ? (
-                partner.reviews
-                  .filter((r: any) => r.status === 'approved')
-                  .map((review: any) => (
+              {approvedReviews.length > 0 ? (
+                approvedReviews.map((review: any) => (
                   <div key={review.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div className="flex items-center gap-1 mb-2">
                       {[...Array(5)].map((_, i) => (
@@ -113,52 +103,41 @@ export default async function PartnerPage({
                       ))}
                     </div>
                     <h4 className="font-bold text-lg text-slate-900">{review.title}</h4>
-                    <p className="text-slate-600 mt-2 mb-4">"{review.body}"</p>
+                    <p className="text-slate-600 mt-2 mb-4 italic">"{review.body}"</p>
                     <div className="text-sm text-slate-400 font-medium">
                       — {review.reviewer_name}, <span className="text-slate-500">{review.reviewer_industry}</span>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-slate-500 italic p-4 bg-slate-100 rounded-xl">
-                  No reviews yet. Be the first to share your experience!
+                <div className="text-slate-500 italic p-8 bg-white border border-dashed border-slate-200 rounded-2xl text-center">
+                  No approved reviews yet. Be the first to share your experience below!
                 </div>
               )}
             </div>
           </section>
 
-          {/* REVIEW FORM SECTION (Moved Outside!) */}
-          <section>
-             <ReviewForm partnerId={partner.id} />
+          {/* Review Form */}
+          <section className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+             <ReviewForm partnerId={partner.id} partnerName={partner.name} />
           </section>
-
         </div>
 
-        {/* RIGHT COLUMN: Sidebar (1/3 width) */}
+        {/* RIGHT COLUMN: Sidebar */}
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <h3 className="font-bold text-slate-900 mb-4">Contact Info</h3>
-            {/* RIGHT COLUMN: Sidebar */}
-        <div className="space-y-6">
-          
-          {/* Contact Info Box */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
             <h3 className="font-bold text-slate-900 mb-4">Contact Info</h3>
             <div className="space-y-3 text-slate-600">
-              <p>📍 Headquarters: USA</p>
-              <p>🌐 <a href={partner.website_url} target="_blank" className="hover:underline text-blue-600 truncate block">{partner.website_url}</a></p>
+              <p className="flex items-center gap-2">📍 <span>Headquarters: USA</span></p>
+              <p className="flex items-center gap-2">🌐 
+                <a href={partner.website_url} target="_blank" className="hover:underline text-blue-600 truncate">
+                  {partner.website_url.replace('https://', '').replace('www.', '')}
+                </a>
+              </p>
             </div>
           </div>
 
-          {/* NEW: Claim Button */}
           <ClaimButton partnerId={partner.id} partnerName={partner.name} />
-
-        </div>
-            <div className="space-y-3 text-slate-600">
-              <p>📍 Headquarters: USA</p>
-              <p>🌐 {partner.website_url}</p>
-            </div>
-          </div>
         </div>
 
       </main>

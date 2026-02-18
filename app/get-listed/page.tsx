@@ -37,7 +37,7 @@ export default function GetListedPage() {
               Basic listing to ensure your firm is found in the directory database.
             </p>
             
-            <Link href="mailto:submit@topbcpartners.com?subject=New Member Application" 
+            <Link href="mailto:partnership@dynamic-focus.com?subject=New Member Application" 
               className="block w-full text-center py-3 rounded-xl border-2 border-slate-100 text-slate-600 font-bold hover:border-slate-300 hover:bg-slate-50 transition mb-8">
               Join for Free
             </Link>
@@ -82,7 +82,7 @@ export default function GetListedPage() {
               Build trust with the "Blue Badge" and drive traffic to your website.
             </p>
             
-            <Link href="mailto:sales@topbcpartners.com?subject=Verified Partner Application" 
+            <Link href="mailto:partnership@dynamic-focus.com?subject=Verified Partner Application" 
               className="block w-full text-center py-4 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition mb-8 flex items-center justify-center gap-2">
               Get Verified <ArrowRight className="w-4 h-4" />
             </Link>
@@ -128,7 +128,7 @@ export default function GetListedPage() {
               Dominate the directory. Maximum visibility for established firms.
             </p>
             
-            <Link href="mailto:sales@topbcpartners.com?subject=Gold Partner Inquiry" 
+            <Link href="mailto:partnership@dynamic-focus.com?subject=Gold Partner Inquiry" 
               className="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-bold hover:to-amber-400 transition mb-8 shadow-lg shadow-amber-900/20">
               Apply for Gold
             </Link>
@@ -165,10 +165,10 @@ export default function GetListedPage() {
           <p className="text-slate-500 font-medium mb-6 uppercase tracking-widest text-xs">Trusted by Top Dynamics Firms</p>
           <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
             {/* You can replace these with real partner logos later */}
-            <div className="h-8 font-bold text-slate-400 text-xl">Innovia</div>
-            <div className="h-8 font-bold text-slate-400 text-xl">ArcherPoint</div>
+            <div className="h-8 font-bold text-slate-400 text-xl">MountEvansConsulting</div>
+            <div className="h-8 font-bold text-slate-400 text-xl">Continia</div>
             <div className="h-8 font-bold text-slate-400 text-xl">Tigunia</div>
-            <div className="h-8 font-bold text-slate-400 text-xl">Stoneridge</div>
+            <div className="h-8 font-bold text-slate-400 text-xl">Data Courage</div>
           </div>
         </div>
 
