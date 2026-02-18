@@ -5,42 +5,11 @@ import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/app/utils/supabase';
-import ReviewForm from '@/app/components/ReviewForm';
+
 
 const inter = Inter({ subsets: ["latin"] });
 // 1. DYNAMIC SEO GENERATOR
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ slug: string }> 
-}): Promise<Metadata> {
-  
-  // Await the params (just like in the main component)
-  const { slug } = await params;
 
-  // Fetch only the text fields we need for SEO
-  const { data: partner } = await supabase
-    .from('listings')
-    .select('name, description, logo_url')
-    .eq('slug', slug)
-    .single();
-
-  if (!partner) {
-    return {
-      title: 'Partner Not Found',
-    };
-  }
-
-  return {
-    title: partner.name, // Will become: "Tigunia | Top BC Partners"
-    description: partner.description?.slice(0, 160) + '...', // Google likes < 160 chars
-    openGraph: {
-      title: `${partner.name} - Verified Business Central Partner`,
-      description: partner.description || 'Check out this partner profile.',
-      images: partner.logo_url ? [partner.logo_url] : [], // Shows their logo on LinkedIn!
-    },
-  };
-}
 // This sets the default SEO for the whole site
 export const metadata: Metadata = {
   title: {
