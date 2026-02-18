@@ -1,6 +1,7 @@
 import { supabase } from '@/app/utils/supabase';
 import { notFound } from 'next/navigation';
 import ReviewForm from '@/app/components/ReviewForm';
+import ClaimButton from '@/app/components/ClaimButton';
 
 // 1. Notice how we type 'params' as a Promise now
 export default async function PartnerPage({
@@ -137,6 +138,22 @@ export default async function PartnerPage({
         <div className="space-y-6">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
             <h3 className="font-bold text-slate-900 mb-4">Contact Info</h3>
+            {/* RIGHT COLUMN: Sidebar */}
+        <div className="space-y-6">
+          
+          {/* Contact Info Box */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <h3 className="font-bold text-slate-900 mb-4">Contact Info</h3>
+            <div className="space-y-3 text-slate-600">
+              <p>📍 Headquarters: USA</p>
+              <p>🌐 <a href={partner.website_url} target="_blank" className="hover:underline text-blue-600 truncate block">{partner.website_url}</a></p>
+            </div>
+          </div>
+
+          {/* NEW: Claim Button */}
+          <ClaimButton partnerId={partner.id} partnerName={partner.name} />
+
+        </div>
             <div className="space-y-3 text-slate-600">
               <p>📍 Headquarters: USA</p>
               <p>🌐 {partner.website_url}</p>

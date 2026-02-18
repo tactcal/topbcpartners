@@ -5,7 +5,8 @@ import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/app/utils/supabase';
-
+import { CSPostHogProvider } from './providers';
+import PostHogPageView from './components/PostHogPageView';
 
 const inter = Inter({ subsets: ["latin"] });
 // 1. DYNAMIC SEO GENERATOR
@@ -35,7 +36,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        
+        <CSPostHogProvider>
+          <PostHogPageView /> {/* <--- The invisible tracker */} {/* <--- START WRAPPER */}
+          {children}
+        </CSPostHogProvider> {/* <--- END WRAPPER */}
         {/* GLASS NAVBAR */}
         <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 z-40 h-16 flex items-center">
           <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
@@ -44,23 +48,22 @@ export default function RootLayout({
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <span className="text-xl font-bold text-slate-900 tracking-tight">
-  TopBC<span className="text-blue-600">Partners</span>
-</span>
+              TopBC<span className="text-blue-600">Partners</span>
+              </span>
             </a>
 
            <div className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
-  <Link href="/" className="hover:text-blue-600 transition">
-    Directory
-  </Link>
-  <Link href="#" className="hover:text-blue-600 transition">
-    For ISVs
-  </Link>
+            <Link href="/" className="hover:text-blue-600 transition">
+            Directory
+            </Link>
+            <Link href="#" className="hover:text-blue-600 transition">
+            For ISVs
+            </Link>
   {/* Update this line to point to your new page */}
   <Link href="/about" className="hover:text-blue-600 transition">
     About
   </Link>
 </div>
-
             {/* Replace the old <a> tag with this: */}
 <Link 
   href="/get-listed" 
