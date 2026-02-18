@@ -3,35 +3,58 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { supabase } from '@/app/utils/supabase';
+import ReviewForm from '@/app/components/ReviewForm';
 
 const inter = Inter({ subsets: ["latin"] });
+// 1. DYNAMIC SEO GENERATOR
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}): Promise<Metadata> {
+  
+  // Await the params (just like in the main component)
+  const { slug } = await params;
 
+  // Fetch only the text fields we need for SEO
+  const { data: partner } = await supabase
+    .from('listings')
+    .select('name, description, logo_url')
+    .eq('slug', slug)
+    .single();
+
+  if (!partner) {
+    return {
+      title: 'Partner Not Found',
+    };
+  }
+
+  return {
+    title: partner.name, // Will become: "Tigunia | Top BC Partners"
+    description: partner.description?.slice(0, 160) + '...', // Google likes < 160 chars
+    openGraph: {
+      title: `${partner.name} - Verified Business Central Partner`,
+      description: partner.description || 'Check out this partner profile.',
+      images: partner.logo_url ? [partner.logo_url] : [], // Shows their logo on LinkedIn!
+    },
+  };
+}
+// This sets the default SEO for the whole site
 export const metadata: Metadata = {
   title: {
-    default: "Top Business Central Partners | Find the Best BC Experts & ISVs",
-    template: "%s | TopBCPartners"
+    template: "%s | Top BC Partners", // Example: "Tigunia | Top BC Partners"
+    default: "Top BC Partners | Find the Best Dynamics 365 Consultants",
   },
-  description: "The definitive directory for Microsoft Dynamics 365 Business Central implementation partners, consultants, and independent software vendors (ISVs).",
-  keywords: ["Microsoft Dynamics 365", "Business Central", "BC Partners", "ISV", "ERP Consulting"],
+  description: " The premier directory for Microsoft Dynamics 365 Business Central partners. Compare top-rated implementation experts, ISVs, and support providers.",
   openGraph: {
-    title: "Top Business Central Partners",
-    description: "Connect with vetted Microsoft Dynamics 365 BC experts and discover top-rated ISV solutions.",
+    title: "Top BC Partners",
+    description: "Find the perfect Microsoft Dynamics 365 partner for your business.",
     url: "https://topbcpartners.com",
-    siteName: "TopBCPartners",
-    images: [
-      {
-        url: "/og-image.png", // We can create this image later
-        width: 1200,
-        height: 630,
-      },
-    ],
+    siteName: "Top BC Partners",
     locale: "en_US",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Top Business Central Partners",
-    description: "The #1 directory for Microsoft Dynamics 365 BC Partners and ISV Add-ons.",
   },
 };
 

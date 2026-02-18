@@ -1,84 +1,90 @@
-import { notFound } from 'next/navigation';
 import { supabase } from '@/app/utils/supabase';
-import { ShieldCheck, Globe, MapPin, CheckCircle, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import ReviewForm from '@/app/components/ReviewForm';
 
-// Helper for Badge Colors (same as Home page)
-const getBadgeStyle = (tier: string) => {
-  switch (tier?.toLowerCase()) {
-    case 'gold': return 'bg-amber-100 text-amber-800 border-amber-200';
-    case 'verified': return 'bg-blue-600 text-white border-blue-700 shadow-sm';
-    case 'silver': return 'bg-slate-100 text-slate-700 border-slate-200';
-    default: return 'bg-slate-50 text-slate-500 border-slate-100';
-  }
-};
-
-export default async function PartnerPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+// 1. Notice how we type 'params' as a Promise now
+export default async function PartnerPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>; 
+}) {
   
-  // Fetch partner data
+  // 2. UNLOCK the params by awaiting them
+  const { slug } = await params;
+
+  // 3. Fetch the partner AND their reviews using the unlocked 'slug'
   const { data: partner } = await supabase
     .from('listings')
-    .select('*')
+    .select('*, reviews(*)') // This grabs the partner + all their reviews
     .eq('slug', slug)
     .single();
 
-  if (!partner) return notFound();
+  // 4. If no partner found, show 404
+  if (!partner) {
+    notFound();
+  }
+
+  // ... (Keep your return statement below here)
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
-      {/* 1. BREADCRUMB HEADER */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <Link href="/" className="inline-flex items-center text-sm text-slate-500 hover:text-blue-600 transition">
-            <ArrowLeft className="w-4 h-4 mr-1" /> Back to Directory
-          </Link>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 py-8 grid lg:grid-cols-3 gap-8">
-        
-        {/* 2. MAIN CONTENT COLUMN */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Header Card */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <div className="flex gap-2 mb-3">
-                  <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                    {partner.type}
+    <div className="min-h-screen bg-slate-50">
+      {/* 1. Header Section (Logo, Name, etc.) */}
+      <header className="bg-white border-b border-slate-200">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+            {/* Logo Box */}
+            <div className="w-32 h-32 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center p-4">
+              {partner.logo_url ? (
+                <img src={partner.logo_url} alt={partner.name} className="w-full h-full object-contain" />
+              ) : (
+                <span className="text-4xl">🏢</span>
+              )}
+            </div>
+            
+            {/* Title & Badges */}
+            <div className="text-center md:text-left flex-1">
+              <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
+                {partner.tier === 'Gold' && (
+                  <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full border border-yellow-200">
+                    🥇 GOLD PARTNER
                   </span>
-                  {partner.tier && partner.tier !== 'Member' && (
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border flex items-center gap-1 ${getBadgeStyle(partner.tier)}`}>
-                      {partner.tier === 'Verified' && <ShieldCheck className="w-3 h-3" />}
-                      {partner.tier} Partner
-                    </span>
-                  )}
-                </div>
-                <h1 className="text-4xl font-extrabold text-slate-900 mb-2">{partner.name}</h1>
-                <div className="flex items-center text-slate-500 text-sm">
-                  <MapPin className="w-4 h-4 mr-1" /> Serving Global / Remote
-                </div>
+                )}
+                <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full border border-blue-100">
+                  {partner.type || 'Reseller'}
+                </span>
               </div>
+              <h1 className="text-4xl font-bold text-slate-900 mb-2">{partner.name}</h1>
+              <p className="text-slate-500 text-lg max-w-2xl">{partner.description}</p>
             </div>
-            
-            <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed">
-              <p>{partner.description || "No description provided."}</p>
-            </div>
-          </div>
 
-          {/* Services Section (Placeholder for future data) */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-6">Expertise & Focus</h3>
-            {/* Services Section (Connected to Database) */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-6">Expertise & Focus</h3>
-            
+            {/* CTA Button */}
+            <a 
+              href={partner.website_url} 
+              target="_blank" 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg shadow-blue-200"
+            >
+              Visit Website
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* 2. Main Content Grid */}
+      <main className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        {/* LEFT COLUMN: Expertise & Reviews (2/3 width) */}
+        <div className="md:col-span-2 space-y-8">
+          
+          {/* Expertise Section */}
+          <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+            <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              🛠️ Expertise & Focus
+            </h3>
             {partner.services && partner.services.length > 0 ? (
               <div className="grid sm:grid-cols-2 gap-4">
                 {partner.services.map((service: string) => (
                   <div key={service} className="flex items-center gap-3 text-slate-700">
-                    <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
                     <span className="font-medium">{service}</span>
                   </div>
                 ))}
@@ -86,40 +92,59 @@ export default async function PartnerPage({ params }: { params: Promise<{ slug: 
             ) : (
               <p className="text-slate-500 italic">No specific services listed.</p>
             )}
-          </div>
-          </div>
+          </section>
+
+          {/* REVIEWS DISPLAY SECTION (New!) */}
+          <section>
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">
+              Client Reviews ({partner.reviews ? partner.reviews.filter((r: any) => r.status === 'approved').length : 0})
+            </h3>
+
+            <div className="space-y-4">
+              {partner.reviews && partner.reviews.filter((r: any) => r.status === 'approved').length > 0 ? (
+                partner.reviews
+                  .filter((r: any) => r.status === 'approved')
+                  .map((review: any) => (
+                  <div key={review.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-1 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className={`text-xl ${i < review.rating ? 'text-yellow-400' : 'text-slate-200'}`}>★</span>
+                      ))}
+                    </div>
+                    <h4 className="font-bold text-lg text-slate-900">{review.title}</h4>
+                    <p className="text-slate-600 mt-2 mb-4">"{review.body}"</p>
+                    <div className="text-sm text-slate-400 font-medium">
+                      — {review.reviewer_name}, <span className="text-slate-500">{review.reviewer_industry}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-slate-500 italic p-4 bg-slate-100 rounded-xl">
+                  No reviews yet. Be the first to share your experience!
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* REVIEW FORM SECTION (Moved Outside!) */}
+          <section>
+             <ReviewForm partnerId={partner.id} />
+          </section>
+
         </div>
 
-        {/* 3. SIDEBAR (Sticky Call-to-Action) */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 sticky top-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Contact {partner.name}</h3>
-            <p className="text-slate-500 text-sm mb-6">
-              Connect directly with their team to discuss your Business Central project.
-            </p>
-            
-            {partner.website_url ? (
-              <a 
-                href={partner.website_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-3.5 rounded-xl transition shadow-md shadow-blue-200 mb-3"
-              >
-                Visit Website <Globe className="inline w-4 h-4 ml-1" />
-              </a>
-            ) : (
-              <button disabled className="block w-full bg-slate-100 text-slate-400 font-bold py-3.5 rounded-xl cursor-not-allowed">
-                Website Not Available
-              </button>
-            )}
-            
-            <div className="text-center text-xs text-slate-400 mt-4">
-              Member of TopBCPartners since 2024
+        {/* RIGHT COLUMN: Sidebar (1/3 width) */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <h3 className="font-bold text-slate-900 mb-4">Contact Info</h3>
+            <div className="space-y-3 text-slate-600">
+              <p>📍 Headquarters: USA</p>
+              <p>🌐 {partner.website_url}</p>
             </div>
           </div>
         </div>
 
-      </div>
+      </main>
     </div>
   );
 }
